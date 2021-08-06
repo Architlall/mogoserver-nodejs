@@ -181,9 +181,12 @@ dishRouter.route('/:dishId/comments/:commentId')
         + '/comments/' + req.params.commentId);
 })
 .put(authenticate.verifyUser, (req, res, next) => {
-    if(req.user._id == comments.author){
+   
     Dishes.findById(req.params.dishId)
     .then((dish) => {
+        var Id1 = dish.comments.id(req.params.commentId).author;
+        var id2 = req.user._id;
+        if(Id1.equals(id2)) {
         if (dish != null && dish.comments.id(req.params.commentId) != null) {
             if (req.body.rating) {
                 dish.comments.id(req.params.commentId).rating = req.body.rating;
@@ -212,20 +215,25 @@ dishRouter.route('/:dishId/comments/:commentId')
             err.status = 404;
             return next(err);            
         }
-    }, (err) => next(err))
+    } else {
+        err = new Error('not at all authorized');
+        err.status = 404;
+        return next(err); 
+    }
+        }, (err) => next(err))
     .catch((err) => next(err));
 }
-else {
-    err = new Error('Not authorized');
-            err.status = 404;
-            return next(err);
-}
-})
+
+)
+
 
 .delete(authenticate.verifyUser, (req, res, next) => {
-    if(req.user._id == comments.author){
+    
     Dishes.findById(req.params.dishId)
     .then((dish) => {
+        var Id1 = dish.comments.id(req.params.commentId).author;
+        var id2 = req.user._id;
+        if(Id1.equals(id2))  {
         if (dish != null && dish.comments.id(req.params.commentId) != null) {
 
             dish.comments.id(req.params.commentId).remove();
@@ -250,15 +258,16 @@ else {
             err.status = 404;
             return next(err);            
         }
-    }, (err) => next(err))
+    } else {
+        err = new Error('not at all authorized');
+        err.status = 404;
+        return next(err); 
+    }
+        }, (err) => next(err))
     .catch((err) => next(err));
 }
-else {
-    err = new Error('not authorized');
-    err.status = 404;
-    return next(err); 
-}
-});
+
+);
 
 
 
