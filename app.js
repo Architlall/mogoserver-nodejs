@@ -6,6 +6,8 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 var passport = require('passport');
 // var authenticate = require('../authenticate');
+
+
 const Dishes = require('./models/dishes');
 var config = require('./config');
 const url = config.mongoUrl;
@@ -37,6 +39,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 
@@ -45,6 +49,18 @@ app.use('/dishes',dishRouter);
 app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
 
+function auth (req, res, next) {
+  console.log(req.user);
+
+  if (!req.user) {
+    var err = new Error('You are not authenticated!');
+    err.status = 403;
+    next(err);
+  }
+  else {
+        next();
+  }
+}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
